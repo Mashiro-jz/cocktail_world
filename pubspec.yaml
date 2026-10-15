@@ -7,8 +7,11 @@ environment:
   sdk: ^3.13.2
 
 dependencies:
+  build_runner: ^2.16.2
   flutter:
     sdk: flutter
+  freezed: ^4.0.2
+  freezed_annotation: ^3.1.0
   http: ^1.6.0
 
 dev_dependencies:
