@@ -5,7 +5,7 @@ part 'cocktail.freezed.dart';
 part 'cocktail.g.dart';
 
 @freezed
-class Cocktail with _$Cocktail {
+abstract class Cocktail with _$Cocktail {
   const factory Cocktail({
     required int id,
     required String name,
@@ -13,10 +13,9 @@ class Cocktail with _$Cocktail {
     required String instructions,
     String? imageUrl,
     required bool alcoholic,
-    required List<Ingridient> ingredients,
-    required this.instructions,
-    this.imageUrl,
-    required this.alcoholic,
-    required this.ingredients,
-  });
+    required List<Ingredient> ingredients,
   }) = _Cocktail;
+
+  factory Cocktail.fromJson(Map<String, dynamic> json) =>
+      _$CocktailFromJson(json);
+}

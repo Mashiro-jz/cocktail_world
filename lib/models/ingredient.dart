@@ -4,26 +4,17 @@ part 'ingredient.freezed.dart';
 part 'ingredient.g.dart';
 
 @freezed
-class Ingridient with _$Ingridient {
-  const factory Ingridient({
+abstract class Ingredient with _$Ingredient {
+  const factory Ingredient({
     required int id,
     required String name,
     String? description,
     required bool alcohol,
     required String type,
-    int? percentage;
-  required String? imageUrl;
-  }) = _Ingridient;
-}
-  final int? percentage;
-  final String? imageUrl;
-  Ingridient({
-    required this.id,
-    required this.name,
-    this.description,
-    required this.alcohol,
-    required this.type,
-    this.percentage,
-    this.imageUrl,
-  });
+    String? percentage,
+    String? imageUrl,
+  }) = _Ingredient;
+
+  factory Ingredient.fromJson(Map<String, dynamic> json) =>
+      _$IngredientFromJson(json);
 }
