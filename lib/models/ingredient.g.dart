@@ -11,7 +11,7 @@ _Ingredient _$IngredientFromJson(Map<String, dynamic> json) => _Ingredient(
   name: json['name'] as String,
   description: json['description'] as String?,
   alcohol: json['alcohol'] as bool,
-  type: json['type'] as String,
+  type: json['type'] as String?,
   percentage: json['percentage'] as String?,
   imageUrl: json['imageUrl'] as String?,
 );

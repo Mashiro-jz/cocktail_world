@@ -1,8 +1,10 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
+import 'package:coctail_world/models/cocktail.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
+enum FetchStatus { initial, loading, success, failure }
 
 class CoctailScreen extends StatefulWidget {
   final String coctailId;
@@ -14,11 +16,12 @@ class CoctailScreen extends StatefulWidget {
 }
 
 class _CoctailScreenState extends State<CoctailScreen> {
-  bool _isSuccess = false;
+  FetchStatus _fetchStatus = FetchStatus.initial;
+  Cocktail? _cocktail;
 
   Future<bool> fetchCocktailDetails() async {
     setState(() {
-      _isSuccess = false;
+      _fetchStatus = FetchStatus.loading;
     });
     // Simulate a network request or database query
     var url = Uri.https(
@@ -27,18 +30,18 @@ class _CoctailScreenState extends State<CoctailScreen> {
     );
     var response = await http.get(url);
     if (response.statusCode == 200) {
-      setState(() {
-        _isSuccess = true;
-      });
-      var cocktailName = jsonDecode(response.body)['data']['name'];
+      final cocktail = Cocktail.fromJson(jsonDecode(response.body)['data']);
 
-      if (kDebugMode) {
-        print('Response code: ${response.statusCode}');
-        print('Cocktail name: $cocktailName');
-      }
+      setState(() {
+        _fetchStatus = FetchStatus.success;
+        _cocktail = cocktail;
+      });
 
       return true;
     } else {
+      setState(() {
+        _fetchStatus = FetchStatus.failure;
+      });
       return false;
     }
   }
@@ -47,20 +50,44 @@ class _CoctailScreenState extends State<CoctailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Cocktail Details')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Details for cocktail ID: ${widget.coctailId}'),
-            ElevatedButton(
-              onPressed: fetchCocktailDetails,
-              child: const Text('Fetch Cocktail Details'),
-            ),
-            if (_isSuccess)
-              const Text('Cocktail details fetched successfully!')
-            else
-              const Text('Failed to fetch cocktail details.'),
-          ],
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Details for cocktail ID: ${widget.coctailId}'),
+              ElevatedButton(
+                onPressed: fetchCocktailDetails,
+                child: const Text('Fetch Cocktail Details'),
+              ),
+              if (_fetchStatus == FetchStatus.loading) ...[
+                const CircularProgressIndicator(),
+              ] else if (_fetchStatus == FetchStatus.success &&
+                  _cocktail != null) ...[
+                Text('Cocktail Name: ${_cocktail!.name}'),
+                Text('Category: ${_cocktail!.category ?? 'N/A'}'),
+                Text('Instructions: ${_cocktail!.instructions}'),
+                Text('Alcoholic: ${_cocktail!.alcoholic ? 'Yes' : 'No'}'),
+                if (_cocktail!.imageUrl != null) ...[
+                  Image.network(_cocktail!.imageUrl!),
+                ],
+                const SizedBox(height: 20),
+                const Text(
+                  'Ingredients:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                for (var ingredient in _cocktail!.ingredients) ...[
+                  Text(
+                    '${ingredient.name} (${ingredient.type ?? 'N/A'}) - ${ingredient.percentage ?? 'N/A'}%',
+                  ),
+                ],
+              ] else if (_fetchStatus == FetchStatus.failure) ...[
+                const Text(
+                  'Failed to fetch cocktail details. Please try again.',
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );
