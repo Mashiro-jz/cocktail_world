@@ -12,7 +12,7 @@ _Ingredient _$IngredientFromJson(Map<String, dynamic> json) => _Ingredient(
   description: json['description'] as String?,
   alcohol: json['alcohol'] as bool,
   type: json['type'] as String?,
-  percentage: json['percentage'] as String?,
+  percentage: (json['percentage'] as num?)?.toInt(),
   imageUrl: json['imageUrl'] as String?,
 );
 

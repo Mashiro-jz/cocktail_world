@@ -11,7 +11,7 @@ abstract class Ingredient with _$Ingredient {
     String? description,
     required bool alcohol,
     String? type,
-    String? percentage,
+    int? percentage,
     String? imageUrl,
   }) = _Ingredient;
 

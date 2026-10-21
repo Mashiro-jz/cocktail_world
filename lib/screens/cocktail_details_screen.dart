@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:coctail_world/models/cocktail.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -41,6 +42,10 @@ class _CoctailScreenState extends State<CoctailScreen> {
     } else {
       setState(() {
         _fetchStatus = FetchStatus.failure;
+        if (kDebugMode) {
+          print('Failed to fetch cocktail details: ${response.statusCode}');
+          print('Response body: ${response.body}');
+        }
       });
       return false;
     }
@@ -60,6 +65,7 @@ class _CoctailScreenState extends State<CoctailScreen> {
                 onPressed: fetchCocktailDetails,
                 child: const Text('Fetch Cocktail Details'),
               ),
+              const SizedBox(height: 20),
               if (_fetchStatus == FetchStatus.loading) ...[
                 const CircularProgressIndicator(),
               ] else if (_fetchStatus == FetchStatus.success &&
@@ -78,7 +84,7 @@ class _CoctailScreenState extends State<CoctailScreen> {
                 ),
                 for (var ingredient in _cocktail!.ingredients) ...[
                   Text(
-                    '${ingredient.name} (${ingredient.type ?? 'N/A'}) - ${ingredient.percentage ?? 'N/A'}%',
+                    '${ingredient.name} - Type:  ${ingredient.type ?? 'N/A'}',
                   ),
                 ],
               ] else if (_fetchStatus == FetchStatus.failure) ...[

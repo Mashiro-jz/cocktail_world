@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Ingredient {
 
- int get id; String get name; String? get description; bool get alcohol; String? get type; String? get percentage; String? get imageUrl;
+ int get id; String get name; String? get description; bool get alcohol; String? get type; int? get percentage; String? get imageUrl;
 /// Create a copy of Ingredient
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -54,7 +54,7 @@ abstract mixin class $IngredientCopyWith<$Res>  {
   factory $IngredientCopyWith(Ingredient value, $Res Function(Ingredient) _then) = _$IngredientCopyWithImpl;
 @useResult
 $Res call({
- int id, String name, String? description, bool alcohol, String? type, String? percentage, String? imageUrl
+ int id, String name, String? description, bool alcohol, String? type, int? percentage, String? imageUrl
 });
 
 
@@ -79,7 +79,7 @@ as String,description: freezed == description ? _self.description : description 
 as String?,alcohol: null == alcohol ? _self.alcohol : alcohol // ignore: cast_nullable_to_non_nullable
 as bool,type: freezed == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String?,percentage: freezed == percentage ? _self.percentage : percentage // ignore: cast_nullable_to_non_nullable
-as String?,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
+as int?,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -165,7 +165,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  String? description,  bool alcohol,  String? type,  String? percentage,  String? imageUrl)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  String? description,  bool alcohol,  String? type,  int? percentage,  String? imageUrl)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Ingredient() when $default != null:
 return $default(_that.id,_that.name,_that.description,_that.alcohol,_that.type,_that.percentage,_that.imageUrl);case _:
@@ -186,7 +186,7 @@ return $default(_that.id,_that.name,_that.description,_that.alcohol,_that.type,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  String? description,  bool alcohol,  String? type,  String? percentage,  String? imageUrl)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  String? description,  bool alcohol,  String? type,  int? percentage,  String? imageUrl)  $default,) {final _that = this;
 switch (_that) {
 case _Ingredient():
 return $default(_that.id,_that.name,_that.description,_that.alcohol,_that.type,_that.percentage,_that.imageUrl);case _:
@@ -206,7 +206,7 @@ return $default(_that.id,_that.name,_that.description,_that.alcohol,_that.type,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  String? description,  bool alcohol,  String? type,  String? percentage,  String? imageUrl)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  String? description,  bool alcohol,  String? type,  int? percentage,  String? imageUrl)?  $default,) {final _that = this;
 switch (_that) {
 case _Ingredient() when $default != null:
 return $default(_that.id,_that.name,_that.description,_that.alcohol,_that.type,_that.percentage,_that.imageUrl);case _:
@@ -229,7 +229,7 @@ class _Ingredient implements Ingredient {
 @override final  String? description;
 @override final  bool alcohol;
 @override final  String? type;
-@override final  String? percentage;
+@override final  int? percentage;
 @override final  String? imageUrl;
 
 /// Create a copy of Ingredient
@@ -267,7 +267,7 @@ abstract mixin class _$IngredientCopyWith<$Res> implements $IngredientCopyWith<$
   factory _$IngredientCopyWith(_Ingredient value, $Res Function(_Ingredient) _then) = __$IngredientCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String name, String? description, bool alcohol, String? type, String? percentage, String? imageUrl
+ int id, String name, String? description, bool alcohol, String? type, int? percentage, String? imageUrl
 });
 
 
@@ -292,7 +292,7 @@ as String,description: freezed == description ? _self.description : description 
 as String?,alcohol: null == alcohol ? _self.alcohol : alcohol // ignore: cast_nullable_to_non_nullable
 as bool,type: freezed == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String?,percentage: freezed == percentage ? _self.percentage : percentage // ignore: cast_nullable_to_non_nullable
-as String?,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
+as int?,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
