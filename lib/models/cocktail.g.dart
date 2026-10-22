@@ -13,8 +13,8 @@ _Cocktail _$CocktailFromJson(Map<String, dynamic> json) => _Cocktail(
   instructions: json['instructions'] as String,
   imageUrl: json['imageUrl'] as String?,
   alcoholic: json['alcoholic'] as bool,
-  ingredients: (json['ingredients'] as List<dynamic>)
-      .map((e) => Ingredient.fromJson(e as Map<String, dynamic>))
+  ingredients: (json['ingredients'] as List<dynamic>?)
+      ?.map((e) => Ingredient.fromJson(e as Map<String, dynamic>))
       .toList(),
 );
 

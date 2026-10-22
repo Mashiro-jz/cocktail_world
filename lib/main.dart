@@ -1,4 +1,4 @@
-import 'package:coctail_world/screens/cocktail_details_screen.dart';
+import 'package:coctail_world/screens/cocktail_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -10,8 +10,6 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(body: CoctailScreen(coctailId: '11003')),
-    );
+    return const MaterialApp(home: Scaffold(body: CoctailScreen()));
   }
 }

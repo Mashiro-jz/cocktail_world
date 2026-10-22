@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Cocktail {
 
- int get id; String get name; String? get category; String get instructions; String? get imageUrl; bool get alcoholic; List<Ingredient> get ingredients;
+ int get id; String get name; String? get category; String get instructions; String? get imageUrl; bool get alcoholic; List<Ingredient>? get ingredients;
 /// Create a copy of Cocktail
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -54,7 +54,7 @@ abstract mixin class $CocktailCopyWith<$Res>  {
   factory $CocktailCopyWith(Cocktail value, $Res Function(Cocktail) _then) = _$CocktailCopyWithImpl;
 @useResult
 $Res call({
- int id, String name, String? category, String instructions, String? imageUrl, bool alcoholic, List<Ingredient> ingredients
+ int id, String name, String? category, String instructions, String? imageUrl, bool alcoholic, List<Ingredient>? ingredients
 });
 
 
@@ -71,7 +71,7 @@ class _$CocktailCopyWithImpl<$Res>
 
 /// Create a copy of Cocktail
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? category = freezed,Object? instructions = null,Object? imageUrl = freezed,Object? alcoholic = null,Object? ingredients = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? category = freezed,Object? instructions = null,Object? imageUrl = freezed,Object? alcoholic = null,Object? ingredients = freezed,}) {
   return _then(Cocktail(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -79,8 +79,8 @@ as String,category: freezed == category ? _self.category : category // ignore: c
 as String?,instructions: null == instructions ? _self.instructions : instructions // ignore: cast_nullable_to_non_nullable
 as String,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
 as String?,alcoholic: null == alcoholic ? _self.alcoholic : alcoholic // ignore: cast_nullable_to_non_nullable
-as bool,ingredients: null == ingredients ? _self.ingredients : ingredients // ignore: cast_nullable_to_non_nullable
-as List<Ingredient>,
+as bool,ingredients: freezed == ingredients ? _self.ingredients : ingredients // ignore: cast_nullable_to_non_nullable
+as List<Ingredient>?,
   ));
 }
 
@@ -165,7 +165,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  String? category,  String instructions,  String? imageUrl,  bool alcoholic,  List<Ingredient> ingredients)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  String? category,  String instructions,  String? imageUrl,  bool alcoholic,  List<Ingredient>? ingredients)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Cocktail() when $default != null:
 return $default(_that.id,_that.name,_that.category,_that.instructions,_that.imageUrl,_that.alcoholic,_that.ingredients);case _:
@@ -186,7 +186,7 @@ return $default(_that.id,_that.name,_that.category,_that.instructions,_that.imag
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  String? category,  String instructions,  String? imageUrl,  bool alcoholic,  List<Ingredient> ingredients)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  String? category,  String instructions,  String? imageUrl,  bool alcoholic,  List<Ingredient>? ingredients)  $default,) {final _that = this;
 switch (_that) {
 case _Cocktail():
 return $default(_that.id,_that.name,_that.category,_that.instructions,_that.imageUrl,_that.alcoholic,_that.ingredients);case _:
@@ -206,7 +206,7 @@ return $default(_that.id,_that.name,_that.category,_that.instructions,_that.imag
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  String? category,  String instructions,  String? imageUrl,  bool alcoholic,  List<Ingredient> ingredients)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  String? category,  String instructions,  String? imageUrl,  bool alcoholic,  List<Ingredient>? ingredients)?  $default,) {final _that = this;
 switch (_that) {
 case _Cocktail() when $default != null:
 return $default(_that.id,_that.name,_that.category,_that.instructions,_that.imageUrl,_that.alcoholic,_that.ingredients);case _:
@@ -221,7 +221,7 @@ return $default(_that.id,_that.name,_that.category,_that.instructions,_that.imag
 @JsonSerializable()
 
 class _Cocktail implements Cocktail {
-  const _Cocktail({required this.id, required this.name, this.category, required this.instructions, this.imageUrl, required this.alcoholic, required  List<Ingredient> ingredients}): _ingredients = ingredients;
+  const _Cocktail({required this.id, required this.name, this.category, required this.instructions, this.imageUrl, required this.alcoholic,  List<Ingredient>? ingredients}): _ingredients = ingredients;
   factory _Cocktail.fromJson(Map<String, dynamic> json) => _$CocktailFromJson(json);
 
 @override final  int id;
@@ -230,11 +230,13 @@ class _Cocktail implements Cocktail {
 @override final  String instructions;
 @override final  String? imageUrl;
 @override final  bool alcoholic;
- final  List<Ingredient> _ingredients;
-@override List<Ingredient> get ingredients {
+ final  List<Ingredient>? _ingredients;
+@override List<Ingredient>? get ingredients {
+  final value = _ingredients;
+  if (value == null) return null;
   if (_ingredients is EqualUnmodifiableListView) return _ingredients;
   // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_ingredients);
+  return EqualUnmodifiableListView(value);
 }
 
 
@@ -273,7 +275,7 @@ abstract mixin class _$CocktailCopyWith<$Res> implements $CocktailCopyWith<$Res>
   factory _$CocktailCopyWith(_Cocktail value, $Res Function(_Cocktail) _then) = __$CocktailCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String name, String? category, String instructions, String? imageUrl, bool alcoholic, List<Ingredient> ingredients
+ int id, String name, String? category, String instructions, String? imageUrl, bool alcoholic, List<Ingredient>? ingredients
 });
 
 
@@ -290,7 +292,7 @@ class __$CocktailCopyWithImpl<$Res>
 
 /// Create a copy of Cocktail
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? category = freezed,Object? instructions = null,Object? imageUrl = freezed,Object? alcoholic = null,Object? ingredients = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? category = freezed,Object? instructions = null,Object? imageUrl = freezed,Object? alcoholic = null,Object? ingredients = freezed,}) {
   return _then(_Cocktail(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -298,8 +300,8 @@ as String,category: freezed == category ? _self.category : category // ignore: c
 as String?,instructions: null == instructions ? _self.instructions : instructions // ignore: cast_nullable_to_non_nullable
 as String,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
 as String?,alcoholic: null == alcoholic ? _self.alcoholic : alcoholic // ignore: cast_nullable_to_non_nullable
-as bool,ingredients: null == ingredients ? _self._ingredients : ingredients // ignore: cast_nullable_to_non_nullable
-as List<Ingredient>,
+as bool,ingredients: freezed == ingredients ? _self._ingredients : ingredients // ignore: cast_nullable_to_non_nullable
+as List<Ingredient>?,
   ));
 }
 

@@ -1,54 +1,33 @@
-import 'dart:convert';
-
 import 'package:coctail_world/models/cocktail.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:coctail_world/services/cocktail_repository.dart';
 
-enum FetchStatus { initial, loading, success, failure }
-
-class CoctailScreen extends StatefulWidget {
+class CocktailDetailsScreen extends StatefulWidget {
   final String coctailId;
 
-  const CoctailScreen({super.key, required this.coctailId});
+  const CocktailDetailsScreen({super.key, required this.coctailId});
 
   @override
-  State<CoctailScreen> createState() => _CoctailScreenState();
+  State<CocktailDetailsScreen> createState() => _CocktailDetailsScreenState();
 }
 
-class _CoctailScreenState extends State<CoctailScreen> {
-  FetchStatus _fetchStatus = FetchStatus.initial;
+class _CocktailDetailsScreenState extends State<CocktailDetailsScreen> {
+  final CocktailRepository _cocktailRepository = CocktailRepository();
   Cocktail? _cocktail;
 
-  Future<bool> fetchCocktailDetails() async {
-    setState(() {
-      _fetchStatus = FetchStatus.loading;
-    });
-    // Simulate a network request or database query
-    var url = Uri.https(
-      'cocktails.solvro.pl',
-      '/api/v1/cocktails/${widget.coctailId}',
+  Future<void> _loadCocktail() async {
+    final loadedCocktail = await _cocktailRepository.getCocktailDetails(
+      widget.coctailId,
     );
-    var response = await http.get(url);
-    if (response.statusCode == 200) {
-      final cocktail = Cocktail.fromJson(jsonDecode(response.body)['data']);
+    setState(() {
+      _cocktail = loadedCocktail;
+    });
+  }
 
-      setState(() {
-        _fetchStatus = FetchStatus.success;
-        _cocktail = cocktail;
-      });
-
-      return true;
-    } else {
-      setState(() {
-        _fetchStatus = FetchStatus.failure;
-        if (kDebugMode) {
-          print('Failed to fetch cocktail details: ${response.statusCode}');
-          print('Response body: ${response.body}');
-        }
-      });
-      return false;
-    }
+  @override
+  initState() {
+    super.initState();
+    _loadCocktail();
   }
 
   @override
@@ -61,20 +40,15 @@ class _CoctailScreenState extends State<CoctailScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text('Details for cocktail ID: ${widget.coctailId}'),
-              ElevatedButton(
-                onPressed: fetchCocktailDetails,
-                child: const Text('Fetch Cocktail Details'),
-              ),
-              const SizedBox(height: 20),
-              if (_fetchStatus == FetchStatus.loading) ...[
+              const SizedBox(height: 5),
+              if (_cocktail == null) ...[
                 const CircularProgressIndicator(),
-              ] else if (_fetchStatus == FetchStatus.success &&
-                  _cocktail != null) ...[
-                Text('Cocktail Name: ${_cocktail!.name}'),
-                Text('Category: ${_cocktail!.category ?? 'N/A'}'),
-                Text('Instructions: ${_cocktail!.instructions}'),
+              ] else ...[
+                Text('Cocktail Name: ${_cocktail?.name}'),
+                Text('Category: ${_cocktail?.category ?? 'N/A'}'),
+                Text('Instructions: ${_cocktail?.instructions}'),
                 Text('Alcoholic: ${_cocktail!.alcoholic ? 'Yes' : 'No'}'),
-                if (_cocktail!.imageUrl != null) ...[
+                if (_cocktail?.imageUrl != null) ...[
                   Image.network(_cocktail!.imageUrl!),
                 ],
                 const SizedBox(height: 20),
@@ -82,15 +56,9 @@ class _CoctailScreenState extends State<CoctailScreen> {
                   'Ingredients:',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                for (var ingredient in _cocktail!.ingredients) ...[
-                  Text(
-                    '${ingredient.name} - Type:  ${ingredient.type ?? 'N/A'}',
-                  ),
+                for (var ingredient in _cocktail?.ingredients ?? const []) ...[
+                  Text('${ingredient.name} ${ingredient.type ?? ''}'),
                 ],
-              ] else if (_fetchStatus == FetchStatus.failure) ...[
-                const Text(
-                  'Failed to fetch cocktail details. Please try again.',
-                ),
               ],
             ],
           ),

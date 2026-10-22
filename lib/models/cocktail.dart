@@ -13,7 +13,7 @@ abstract class Cocktail with _$Cocktail {
     required String instructions,
     String? imageUrl,
     required bool alcoholic,
-    required List<Ingredient> ingredients,
+    List<Ingredient>? ingredients,
   }) = _Cocktail;
 
   factory Cocktail.fromJson(Map<String, dynamic> json) =>
