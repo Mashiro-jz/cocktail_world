@@ -12,6 +12,7 @@ dependencies:
   freezed_annotation: ^3.1.0
   json_annotation: ^4.9.0
   http: ^1.6.0
+  provider:
 
 dev_dependencies:
   flutter_test:

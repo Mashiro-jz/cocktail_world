@@ -1,7 +1,9 @@
 import 'package:coctail_world/models/cocktail.dart';
 import 'package:coctail_world/screens/cocktail_details_screen.dart';
 import 'package:coctail_world/services/cocktail_repository.dart';
+import 'package:coctail_world/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CoctailScreen extends StatefulWidget {
   const CoctailScreen({super.key});
@@ -34,20 +36,21 @@ class _CoctailScreenState extends State<CoctailScreen> {
     });
   }
 
-  void _openDetails(Cocktail cocktail) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            CocktailDetailsScreen(coctailId: cocktail.id.toString()),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cocktails')),
+      appBar: AppBar(
+        title: const Text('Cocktails'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: Provider.of<ThemeProvider>(
+              context,
+              listen: false,
+            ).toggleTheme,
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -119,7 +122,14 @@ class _CoctailScreenState extends State<CoctailScreen> {
                       final cocktail = cocktails[index];
                       return _CocktailCard(
                         cocktail: cocktail,
-                        onTap: () => _openDetails(cocktail),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CocktailDetailsScreen(
+                              coctailId: cocktail.id.toString(),
+                            ),
+                          ),
+                        ),
                       );
                     },
                   );
