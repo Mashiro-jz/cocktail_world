@@ -1,7 +1,7 @@
 import 'package:coctail_world/models/cocktail.dart';
+import 'package:coctail_world/providers/cocktail_provider.dart';
 import 'package:coctail_world/screens/cocktail_details_screen.dart';
-import 'package:coctail_world/services/cocktail_repository.dart';
-import 'package:coctail_world/theme/theme_provider.dart';
+import 'package:coctail_world/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,16 +13,7 @@ class CoctailScreen extends StatefulWidget {
 }
 
 class _CoctailScreenState extends State<CoctailScreen> {
-  final CocktailRepository _cocktailRepository = CocktailRepository();
   final TextEditingController _searchController = TextEditingController();
-  late Future<List<Cocktail>> _future;
-  String _query = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _future = _cocktailRepository.getCocktails();
-  }
 
   @override
   void dispose() {
@@ -30,14 +21,21 @@ class _CoctailScreenState extends State<CoctailScreen> {
     super.dispose();
   }
 
-  void _retry() {
-    setState(() {
-      _future = _cocktailRepository.getCocktails();
-    });
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() {
+    final provider = context.read<CocktailProvider>();
+    provider.setSearchQuery(_searchController.text);
   }
 
   @override
   Widget build(BuildContext context) {
+    final cocktailProvider = Provider.of<CocktailProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cocktails'),
@@ -64,81 +62,64 @@ class _CoctailScreenState extends State<CoctailScreen> {
                     hintText: 'Search cocktails',
                     leading: const Icon(Icons.search),
                     trailing: [
-                      if (_query.isNotEmpty)
+                      if (cocktailProvider.query?.isNotEmpty == true)
                         IconButton(
                           icon: const Icon(Icons.close),
                           onPressed: () {
                             _searchController.clear();
-                            setState(() => _query = '');
                           },
                         ),
                     ],
-                    onChanged: (value) => setState(() => _query = value),
                   ),
                 ),
               ),
             ),
-            Expanded(
-              child: FutureBuilder<List<Cocktail>>(
-                future: _future,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState != ConnectionState.done) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.hasError) {
-                    return _Message(
-                      icon: Icons.error_outline,
-                      text: 'Nie udało się wczytać koktajli',
-                      onRetry: _retry,
-                    );
-                  }
-
-                  final query = _query.trim().toLowerCase();
-                  final cocktails = (snapshot.data ?? const <Cocktail>[])
-                      .where((c) => c.name.toLowerCase().contains(query))
-                      .toList();
-
-                  if (cocktails.isEmpty) {
-                    return const _Message(
-                      icon: Icons.search_off,
-                      text: 'Brak wyników',
-                    );
-                  }
-
-                  return GridView.builder(
-                    keyboardDismissBehavior:
-                        ScrollViewKeyboardDismissBehavior.onDrag,
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    // Liczba kolumn dopasowuje się do szerokości ekranu
-                    gridDelegate:
-                        const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 220,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                          childAspectRatio: 0.8,
-                        ),
-                    itemCount: cocktails.length,
-                    itemBuilder: (context, index) {
-                      final cocktail = cocktails[index];
-                      return _CocktailCard(
-                        cocktail: cocktail,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CocktailDetailsScreen(
-                              coctailId: cocktail.id.toString(),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
+            Expanded(child: _buildCocktailList(cocktailProvider)),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildCocktailList(CocktailProvider cocktailProvider) {
+    if (cocktailProvider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (cocktailProvider.error != null) {
+      return _Message(
+        icon: Icons.error,
+        text: 'Wystąpił błąd: ${cocktailProvider.error}',
+        onRetry: () => cocktailProvider.fetchCocktails(),
+      );
+    }
+    if (cocktailProvider.list.isEmpty) {
+      return const _Message(icon: Icons.search_off, text: 'Brak wyników');
+    }
+
+    return GridView.builder(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      // Liczba kolumn dopasowuje się do szerokości ekranu
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 220,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        childAspectRatio: 0.8,
+      ),
+      itemCount: cocktailProvider.list.length,
+      itemBuilder: (context, index) {
+        final cocktail = cocktailProvider.list[index];
+        return _CocktailCard(
+          cocktail: cocktail,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  CocktailDetailsScreen(coctailId: cocktail.id.toString()),
+            ),
+          ),
+        );
+      },
     );
   }
 }

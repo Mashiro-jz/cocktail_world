@@ -1,12 +1,18 @@
+import 'package:coctail_world/providers/cocktail_provider.dart';
 import 'package:coctail_world/screens/cocktail_screen.dart';
-import 'package:coctail_world/theme/theme_provider.dart';
+import 'package:coctail_world/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider(
+          create: (context) => CocktailProvider()..fetchCocktails(),
+        ),
+      ],
       child: const MyApp(),
     ),
   );
