@@ -5,12 +5,14 @@ import 'package:http/http.dart' as http;
 
 class CocktailRepository {
   final String baseUrl = 'https://cocktails.solvro.pl/api/v1/cocktails';
+  final int perPage = 45;
 
-  Future<List<Cocktail>> getCocktails() async {
+  Future<List<Cocktail>> getCocktails(int page) async {
     List<Cocktail> cocktails = [];
+
     var url = Uri.https('cocktails.solvro.pl', '/api/v1/cocktails', {
-      'page': '1',
-      'perPage': '15',
+      'page': page.toString(),
+      'perPage': perPage.toString(),
     });
     var response = await http.get(url);
     if (response.statusCode == 200) {

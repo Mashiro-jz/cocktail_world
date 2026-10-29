@@ -14,10 +14,12 @@ class CoctailScreen extends StatefulWidget {
 
 class _CoctailScreenState extends State<CoctailScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -25,11 +27,19 @@ class _CoctailScreenState extends State<CoctailScreen> {
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    _scrollController.addListener(_onScroll);
   }
 
   void _onSearchChanged() {
     final provider = context.read<CocktailProvider>();
     provider.setSearchQuery(_searchController.text);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      context.read<CocktailProvider>().fetchCocktails();
+    }
   }
 
   @override
@@ -109,6 +119,7 @@ class _CoctailScreenState extends State<CoctailScreen> {
         childAspectRatio: 0.8,
       ),
       itemCount: cocktailProvider.list.length,
+      controller: _scrollController,
       itemBuilder: (context, index) {
         final cocktail = cocktailProvider.list[index];
         return _CocktailCard(

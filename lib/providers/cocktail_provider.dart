@@ -5,10 +5,13 @@ import 'package:flutter/material.dart';
 class CocktailProvider extends ChangeNotifier {
   final CocktailRepository _cocktailRepository = CocktailRepository();
 
-  List<Cocktail> _cocktails = [];
+  final List<Cocktail> _cocktails = [];
   bool _isLoading = true;
   String? _error;
   String _searchQuery = '';
+  int _currentPage = 1;
+  bool _isFetchingMore = false;
+  bool _hasMore = true;
 
   List<Cocktail> get list {
     if (_searchQuery.isEmpty) {
@@ -25,6 +28,7 @@ class CocktailProvider extends ChangeNotifier {
   }
 
   bool get isLoading => _isLoading;
+  bool get isFetchingMore => _isFetchingMore;
   String? get error => _error;
   String? get query => _searchQuery;
 
@@ -34,19 +38,30 @@ class CocktailProvider extends ChangeNotifier {
   }
 
   Future<List<Cocktail>> fetchCocktails() async {
-    _isLoading = true;
+    if (!_hasMore || _isFetchingMore) return _cocktails;
+
     _error = null;
+
+    if (_currentPage == 1) {
+      _isLoading = true;
+    } else {
+      _isFetchingMore = true;
+    }
+
     notifyListeners();
 
     try {
-      _cocktails = await _cocktailRepository.getCocktails();
-      _isLoading = false;
+      final newCocktails = await _cocktailRepository.getCocktails(_currentPage);
+      _cocktails.addAll(newCocktails);
+      if (newCocktails.length < _cocktailRepository.perPage) _hasMore = false;
       _error = null;
+      _currentPage++;
     } catch (e) {
       _error = e.toString();
-      _isLoading = false;
       return [];
     } finally {
+      _isLoading = false;
+      _isFetchingMore = false;
       notifyListeners();
     }
     return _cocktails;
