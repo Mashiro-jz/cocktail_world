@@ -3,6 +3,7 @@ import 'package:coctail_world/providers/cocktail_provider.dart';
 import 'package:coctail_world/screens/cocktail_details_screen.dart';
 import 'package:coctail_world/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:chips_choice/chips_choice.dart';
 import 'package:provider/provider.dart';
 
 class CoctailScreen extends StatefulWidget {
@@ -85,6 +86,17 @@ class _CoctailScreenState extends State<CoctailScreen> {
                   ),
                 ),
               ),
+            ),
+            ChipsChoice<String?>.single(
+              value: cocktailProvider.category,
+              onChanged: (value) => cocktailProvider.setCategory(value!),
+              choiceItems: C2Choice.listFrom<String, String>(
+                source: cocktailProvider
+                    .categories, // Używamy dynamicznej listy z API!
+                value: (index, item) => item,
+                label: (index, item) => item,
+              ),
+              wrapped: false,
             ),
             Expanded(child: _buildCocktailList(cocktailProvider)),
           ],

@@ -7,13 +7,40 @@ class CocktailRepository {
   final String baseUrl = 'https://cocktails.solvro.pl/api/v1/cocktails';
   final int perPage = 45;
 
-  Future<List<Cocktail>> getCocktails(int page) async {
+  Future<List<String>> getCategories() async {
+    var url = Uri.https('cocktails.solvro.pl', '/api/v1/cocktails/categories');
+    var response = await http.get(url);
+    if (response.statusCode == 200) {
+      return (jsonDecode(response.body)['data'] as List)
+          .map((e) => e.toString())
+          .toList();
+    } else {
+      throw Exception('Failed to load cocktails categories');
+    }
+  }
+
+  Future<List<Cocktail>> getCocktails(
+    int page,
+    String? category,
+    bool? alcoholic,
+    String? search,
+  ) async {
     List<Cocktail> cocktails = [];
 
-    var url = Uri.https('cocktails.solvro.pl', '/api/v1/cocktails', {
+    final Map<String, String> queryParams = {
       'page': page.toString(),
       'perPage': perPage.toString(),
-    });
+    };
+
+    if (category != null) queryParams['category'] = category;
+    if (alcoholic != null) queryParams['alcoholic'] = alcoholic.toString();
+    if (search != null && search.isNotEmpty) queryParams['name'] = search;
+
+    var url = Uri.https(
+      'cocktails.solvro.pl',
+      '/api/v1/cocktails',
+      queryParams,
+    );
     var response = await http.get(url);
     if (response.statusCode == 200) {
       cocktails = (jsonDecode(response.body)['data'] as List)

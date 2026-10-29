@@ -3,37 +3,62 @@ import 'package:coctail_world/services/cocktail_repository.dart';
 import 'package:flutter/material.dart';
 
 class CocktailProvider extends ChangeNotifier {
+  CocktailProvider() {
+    fetchCategories();
+  }
+
   final CocktailRepository _cocktailRepository = CocktailRepository();
 
   final List<Cocktail> _cocktails = [];
+  List<String> _categories = [];
   bool _isLoading = true;
   String? _error;
   String _searchQuery = '';
   int _currentPage = 1;
   bool _isFetchingMore = false;
   bool _hasMore = true;
+  String? _selectedCategory;
 
-  List<Cocktail> get list {
-    if (_searchQuery.isEmpty) {
-      return _cocktails;
-    } else {
-      return _cocktails
-          .where(
-            (cocktail) => cocktail.name.toLowerCase().contains(
-              _searchQuery.toLowerCase(),
-            ),
-          )
-          .toList();
-    }
-  }
-
+  List<Cocktail> get list => _cocktails;
+  List<String> get categories => _categories;
+  String? get category => _selectedCategory;
   bool get isLoading => _isLoading;
   bool get isFetchingMore => _isFetchingMore;
   String? get error => _error;
   String? get query => _searchQuery;
 
+  Future<List<String>> fetchCategories() async {
+    try {
+      _categories = await _cocktailRepository.getCategories();
+    } catch (e) {
+      _error = e.toString();
+      return [];
+    } finally {
+      notifyListeners();
+    }
+    return _categories;
+  }
+
+  void setCategory(String category) {
+    if (_selectedCategory == category) {
+      _selectedCategory = null;
+    } else {
+      _selectedCategory = category;
+    }
+
+    _cocktails.clear();
+    _currentPage = 1;
+    _hasMore = true;
+    fetchCocktails();
+  }
+
   void setSearchQuery(String query) {
+    if (_searchQuery == query) return;
+
     _searchQuery = query;
+    _cocktails.clear;
+    _currentPage = 1;
+    _hasMore = true;
     notifyListeners();
   }
 
@@ -51,7 +76,12 @@ class CocktailProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final newCocktails = await _cocktailRepository.getCocktails(_currentPage);
+      final newCocktails = await _cocktailRepository.getCocktails(
+        _currentPage,
+        _selectedCategory,
+        null,
+        _searchQuery,
+      );
       _cocktails.addAll(newCocktails);
       if (newCocktails.length < _cocktailRepository.perPage) _hasMore = false;
       _error = null;
