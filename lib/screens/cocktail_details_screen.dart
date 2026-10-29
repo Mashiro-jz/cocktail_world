@@ -1,7 +1,9 @@
 import 'package:coctail_world/models/cocktail.dart';
 import 'package:coctail_world/models/ingredient.dart';
+import 'package:coctail_world/providers/theme_provider.dart';
 import 'package:coctail_world/services/cocktail_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CocktailDetailsScreen extends StatefulWidget {
   final String coctailId;
@@ -34,7 +36,20 @@ class _CocktailDetailsScreenState extends State<CocktailDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cocktail Details')),
+      appBar: AppBar(
+        title: const Text('Cocktail Details'),
+        actions: [
+          IconButton(
+            icon: Theme.of(context).brightness == Brightness.dark
+                ? const Icon(Icons.light_mode)
+                : const Icon(Icons.dark_mode),
+            onPressed: Provider.of<ThemeProvider>(
+              context,
+              listen: false,
+            ).toggleTheme,
+          ),
+        ],
+      ),
       body: FutureBuilder<Cocktail?>(
         future: _future,
         builder: (context, snapshot) {

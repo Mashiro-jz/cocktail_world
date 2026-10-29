@@ -41,7 +41,9 @@ class _CoctailScreenState extends State<CoctailScreen> {
         title: const Text('Cocktails'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: Theme.of(context).brightness == Brightness.dark
+                ? const Icon(Icons.light_mode)
+                : const Icon(Icons.dark_mode),
             onPressed: Provider.of<ThemeProvider>(
               context,
               listen: false,
