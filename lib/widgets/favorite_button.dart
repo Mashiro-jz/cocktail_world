@@ -4,15 +4,12 @@ import 'package:provider/provider.dart';
 
 class FavoriteButton extends StatelessWidget {
   final String id;
-
-  /// true = półprzezroczyste tło, żeby serce było widoczne na zdjęciu
   final bool overlay;
 
   const FavoriteButton({super.key, required this.id, this.overlay = false});
 
   @override
   Widget build(BuildContext context) {
-    // select: przebudowuje się tylko ten przycisk, a nie cały ekran
     final isFav = context.select<FavoritesProvider, bool>(
       (f) => f.isFavorite(id),
     );

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:coctail_world/models/cocktail.dart';
 import 'package:coctail_world/services/cocktail_repository.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +22,8 @@ class CocktailProvider extends ChangeNotifier {
   String? _selectedCategory;
   bool? _alcoholicFilter;
   String? _sortBy;
+  int _requestId = 0;
+  Timer? _debounce;
 
   String? get sort => _sortBy;
   bool? get alcoholicFilter => _alcoholicFilter;
@@ -30,6 +34,12 @@ class CocktailProvider extends ChangeNotifier {
   bool get isFetchingMore => _isFetchingMore;
   String? get error => _error;
   String? get query => _searchQuery;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
 
   Future<List<String>> fetchCategories() async {
     try {
@@ -47,6 +57,9 @@ class CocktailProvider extends ChangeNotifier {
     if (_sortBy == sort) return;
 
     _sortBy = sort;
+    _debounce?.cancel();
+    _requestId++;
+    _isFetchingMore = false;
     _cocktails.clear();
     _currentPage = 1;
     _hasMore = true;
@@ -59,6 +72,9 @@ class CocktailProvider extends ChangeNotifier {
     }
 
     _alcoholicFilter = value;
+    _debounce?.cancel();
+    _requestId++;
+    _isFetchingMore = false;
     _cocktails.clear();
     _currentPage = 1;
     _hasMore = true;
@@ -72,6 +88,9 @@ class CocktailProvider extends ChangeNotifier {
       _selectedCategory = category;
     }
 
+    _debounce?.cancel();
+    _requestId++;
+    _isFetchingMore = false;
     _cocktails.clear();
     _currentPage = 1;
     _hasMore = true;
@@ -82,10 +101,15 @@ class CocktailProvider extends ChangeNotifier {
     if (_searchQuery == query) return;
 
     _searchQuery = query;
-    _cocktails.clear();
-    _currentPage = 1;
-    _hasMore = true;
-    fetchCategories();
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 400), () {
+      _requestId++;
+      _isFetchingMore = false;
+      _cocktails.clear();
+      _currentPage = 1;
+      _hasMore = true;
+      fetchCocktails();
+    });
     notifyListeners();
   }
 
@@ -93,6 +117,7 @@ class CocktailProvider extends ChangeNotifier {
     if (!_hasMore || _isFetchingMore) return _cocktails;
 
     _error = null;
+    final requestId = _requestId;
 
     if (_currentPage == 1) {
       _isLoading = true;
@@ -110,17 +135,21 @@ class CocktailProvider extends ChangeNotifier {
         _searchQuery,
         _sortBy,
       );
+      if (requestId != _requestId) return _cocktails;
       _cocktails.addAll(newCocktails);
       if (newCocktails.length < _cocktailRepository.perPage) _hasMore = false;
       _error = null;
       _currentPage++;
     } catch (e) {
+      if (requestId != _requestId) return _cocktails;
       _error = e.toString();
       return [];
     } finally {
-      _isLoading = false;
-      _isFetchingMore = false;
-      notifyListeners();
+      if (requestId == _requestId) {
+        _isLoading = false;
+        _isFetchingMore = false;
+        notifyListeners();
+      }
     }
     return _cocktails;
   }

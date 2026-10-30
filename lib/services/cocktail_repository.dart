@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:coctail_world/models/cocktail.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CocktailRepository {
   final String baseUrl = 'https://cocktails.solvro.pl/api/v1/cocktails';
@@ -26,8 +27,6 @@ class CocktailRepository {
     String? search,
     String? sort,
   ) async {
-    List<Cocktail> cocktails = [];
-
     final Map<String, String> queryParams = {
       'page': page.toString(),
       'perPage': perPage.toString(),
@@ -43,15 +42,48 @@ class CocktailRepository {
       '/api/v1/cocktails',
       queryParams,
     );
-    var response = await http.get(url);
-    if (response.statusCode == 200) {
-      cocktails = (jsonDecode(response.body)['data'] as List)
-          .map((e) => Cocktail.fromJson(e))
-          .toList();
 
-      return cocktails;
-    } else {
-      throw Exception('Failed to load cocktails');
+    final String cacheKey = url.toString();
+    final prefs = await SharedPreferences.getInstance();
+
+    final cachedData = prefs.getString(cacheKey);
+    final cacheTimeStr = prefs.getString('${cacheKey}_time');
+
+    if (cachedData != null && cacheTimeStr != null) {
+      final cacheTime = DateTime.parse(cacheTimeStr);
+      final difference = DateTime.now().difference(cacheTime);
+
+      // jeżeli nie mineło 30 minut od ostatniego pobrania to pobieram dane z cache'u
+      if (difference.inMinutes < 30) {
+        return (jsonDecode(cachedData)['data'] as List)
+            .map((e) => Cocktail.fromJson(e))
+            .toList();
+      }
+    }
+
+    // a jeśli mienło to pobieram z sieci
+    try {
+      var response = await http.get(url);
+      if (response.statusCode == 200) {
+        await prefs.setString(cacheKey, response.body);
+        await prefs.setString(
+          '${cacheKey}_time',
+          DateTime.now().toIso8601String(),
+        );
+
+        return (jsonDecode(response.body)['data'] as List)
+            .map((e) => Cocktail.fromJson(e))
+            .toList();
+      } else {
+        throw Exception('Failed to load cocktails');
+      }
+    } catch (e) {
+      if (cachedData != null) {
+        return (jsonDecode(cachedData)['data'] as List)
+            .map((e) => Cocktail.fromJson(e))
+            .toList();
+      }
+      rethrow;
     }
   }
 

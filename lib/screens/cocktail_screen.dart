@@ -20,8 +20,6 @@ class _CoctailScreenState extends State<CoctailScreen> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final CocktailRepository _repository = CocktailRepository();
-
-  // Cache koktajli ulubionych (id -> koktajl), żeby nie pobierać ich co chwilę
   final Map<String, Cocktail> _favoritesCache = {};
   bool _onlyFavorites = false;
   bool _loadingFavorites = false;
@@ -46,7 +44,6 @@ class _CoctailScreenState extends State<CoctailScreen> {
   }
 
   void _onScroll() {
-    // W trybie ulubionych nie dociągamy kolejnych stron z API
     if (_onlyFavorites) return;
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
@@ -59,12 +56,9 @@ class _CoctailScreenState extends State<CoctailScreen> {
     if (_onlyFavorites) _loadMissingFavorites();
   }
 
-  /// Ulubione mogą nie być jeszcze na liście (paginacja), więc brakujące
-  /// doładowujemy po id.
   Future<void> _loadMissingFavorites() async {
     final ids = context.read<FavoritesProvider>().favoriteIds;
 
-    // Najpierw wykorzystaj to, co już jest załadowane na głównej liście
     for (final c in context.read<CocktailProvider>().list) {
       final id = c.id.toString();
       if (ids.contains(id)) _favoritesCache[id] = c;
@@ -110,15 +104,10 @@ class _CoctailScreenState extends State<CoctailScreen> {
           PopupMenuButton<String>(
             icon: const Icon(Icons.sort_by_alpha),
             tooltip: 'Sortuj',
-            // initialValue podświetli opcję, która jest aktualnie wybrana w Providerze
-            initialValue:
-                cocktailProvider.sort, // upewnij się, że tak nazwałeś getter!
-            // onSelected odpali się, gdy użytkownik kliknie jedną z opcji
+            initialValue: cocktailProvider.sort,
             onSelected: (String value) {
               cocktailProvider.setSortBy(value);
             },
-
-            // itemBuilder buduje listę dostępnych opcji w menu
             itemBuilder: (BuildContext context) => [
               const PopupMenuItem(value: '+name', child: Text('Nazwa (A-Z)')),
               const PopupMenuItem(value: '-name', child: Text('Nazwa (Z-A)')),
@@ -171,8 +160,7 @@ class _CoctailScreenState extends State<CoctailScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: SizedBox(
-                width:
-                    double.infinity, // Rozciąga przełącznik na całą szerokość
+                width: double.infinity,
                 child: SegmentedButton<bool?>(
                   segments: const [
                     ButtonSegment<bool?>(
@@ -191,10 +179,8 @@ class _CoctailScreenState extends State<CoctailScreen> {
                       icon: Icon(Icons.no_drinks),
                     ),
                   ],
-                  // SegmentedButton wymaga Seta (zbioru), więc owijamy wartość w {}
                   selected: {cocktailProvider.alcoholicFilter},
                   onSelectionChanged: (Set<bool?> newSelection) {
-                    // newSelection.first wyciąga pierwszą (i jedyną) klikniętą wartość
                     cocktailProvider.setAlcoholicFilter(newSelection.first);
                   },
                 ),
@@ -204,8 +190,7 @@ class _CoctailScreenState extends State<CoctailScreen> {
               value: cocktailProvider.category,
               onChanged: (value) => cocktailProvider.setCategory(value!),
               choiceItems: C2Choice.listFrom<String, String>(
-                source: cocktailProvider
-                    .categories, // Używamy dynamicznej listy z API!
+                source: cocktailProvider.categories,
                 value: (index, item) => item,
                 label: (index, item) => item,
               ),
@@ -273,7 +258,6 @@ class _CoctailScreenState extends State<CoctailScreen> {
     return GridView.builder(
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      // Liczba kolumn dopasowuje się do szerokości ekranu
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 220,
         mainAxisSpacing: 12,

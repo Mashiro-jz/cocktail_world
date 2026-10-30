@@ -115,7 +115,6 @@ class _CocktailContent extends StatelessWidget {
                 final info = _CocktailInfo(cocktail: cocktail);
 
                 if (isWide) {
-                  // Tablet / szeroki ekran: zdjęcie obok opisu
                   return Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -125,8 +124,6 @@ class _CocktailContent extends StatelessWidget {
                     ],
                   );
                 }
-
-                // Telefon: wszystko w jednej kolumnie
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [image, const SizedBox(height: 16), info],
