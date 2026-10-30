@@ -18,7 +18,9 @@ class CocktailProvider extends ChangeNotifier {
   bool _isFetchingMore = false;
   bool _hasMore = true;
   String? _selectedCategory;
+  bool? _alcoholicFilter;
 
+  bool? get alcoholicFilter => _alcoholicFilter;
   List<Cocktail> get list => _cocktails;
   List<String> get categories => _categories;
   String? get category => _selectedCategory;
@@ -37,6 +39,18 @@ class CocktailProvider extends ChangeNotifier {
       notifyListeners();
     }
     return _categories;
+  }
+
+  void setAlcoholicFilter(bool? value) {
+    if (_alcoholicFilter == value) {
+      return;
+    }
+
+    _alcoholicFilter = value;
+    _cocktails.clear();
+    _currentPage = 1;
+    _hasMore = true;
+    fetchCocktails();
   }
 
   void setCategory(String category) {
@@ -79,7 +93,7 @@ class CocktailProvider extends ChangeNotifier {
       final newCocktails = await _cocktailRepository.getCocktails(
         _currentPage,
         _selectedCategory,
-        null,
+        _alcoholicFilter,
         _searchQuery,
       );
       _cocktails.addAll(newCocktails);

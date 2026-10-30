@@ -87,6 +87,38 @@ class _CoctailScreenState extends State<CoctailScreen> {
                 ),
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: SizedBox(
+                width:
+                    double.infinity, // Rozciąga przełącznik na całą szerokość
+                child: SegmentedButton<bool?>(
+                  segments: const [
+                    ButtonSegment<bool?>(
+                      value: null,
+                      label: Text('Wszystkie'),
+                      icon: Icon(Icons.list),
+                    ),
+                    ButtonSegment<bool?>(
+                      value: true,
+                      label: Text('Z alkoholem'),
+                      icon: Icon(Icons.wine_bar),
+                    ),
+                    ButtonSegment<bool?>(
+                      value: false,
+                      label: Text('Bez alkoholu'),
+                      icon: Icon(Icons.no_drinks),
+                    ),
+                  ],
+                  // SegmentedButton wymaga Seta (zbioru), więc owijamy wartość w {}
+                  selected: {cocktailProvider.alcoholicFilter},
+                  onSelectionChanged: (Set<bool?> newSelection) {
+                    // newSelection.first wyciąga pierwszą (i jedyną) klikniętą wartość
+                    cocktailProvider.setAlcoholicFilter(newSelection.first);
+                  },
+                ),
+              ),
+            ),
             ChipsChoice<String?>.single(
               value: cocktailProvider.category,
               onChanged: (value) => cocktailProvider.setCategory(value!),
