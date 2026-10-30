@@ -1,0 +1,18 @@
+{
+    "name" : "Party Cocktail List",
+    "search" : "Search for Cocktails",
+    "all" : "All",
+    "alcoholic" : "Alcoholic",
+    "noAlco" : "Non-Alcoholic",
+    "favoriteOnly" : "Favorites Only",
+    "showAll" : "Show All",
+    "sort" : "Sort",
+    "drinkName" : "Name",
+    "category" : "Category",
+    "error" : "An error occurred: ",
+    "noResults" : "No results",
+    "noFavorite" : "No favorites",
+    "tryAgain" : "Try again",
+    "deleteFavorite" : "Remove from favorites",
+    "addFavorite" : "Add to favorites"
+}

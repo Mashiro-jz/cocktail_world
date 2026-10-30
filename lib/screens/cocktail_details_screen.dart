@@ -38,7 +38,11 @@ class _CocktailDetailsScreenState extends State<CocktailDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cocktail Details'),
+        title: FutureBuilder<Cocktail?>(
+          future: _future,
+          builder: (context, snapshot) =>
+              Text(snapshot.data?.name ?? 'Cocktail Details'),
+        ),
         actions: [
           FavoriteButton(id: widget.coctailId),
           IconButton(

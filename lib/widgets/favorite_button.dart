@@ -1,4 +1,5 @@
 import 'package:coctail_world/providers/favorites_provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,7 +16,7 @@ class FavoriteButton extends StatelessWidget {
     );
 
     return IconButton(
-      tooltip: isFav ? 'Usuń z ulubionych' : 'Dodaj do ulubionych',
+      tooltip: isFav ? 'deleteFavorite'.tr() : 'addFavorite'.tr(),
       visualDensity: overlay ? VisualDensity.compact : null,
       style: overlay
           ? IconButton.styleFrom(

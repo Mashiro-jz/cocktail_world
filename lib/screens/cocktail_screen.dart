@@ -5,6 +5,7 @@ import 'package:coctail_world/providers/theme_provider.dart';
 import 'package:coctail_world/screens/cocktail_details_screen.dart';
 import 'package:coctail_world/services/cocktail_repository.dart';
 import 'package:coctail_world/widgets/favorite_button.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:chips_choice/chips_choice.dart';
 import 'package:provider/provider.dart';
@@ -56,6 +57,15 @@ class _CoctailScreenState extends State<CoctailScreen> {
     if (_onlyFavorites) _loadMissingFavorites();
   }
 
+  void _toggleLanguage() {
+    Locale? currentLocale = EasyLocalization.of(context)?.locale;
+    if (currentLocale == Locale('pl')) {
+      EasyLocalization.of(context)?.setLocale(Locale('en'));
+    } else {
+      EasyLocalization.of(context)?.setLocale(Locale('pl'));
+    }
+  }
+
   Future<void> _loadMissingFavorites() async {
     final ids = context.read<FavoritesProvider>().favoriteIds;
 
@@ -91,10 +101,14 @@ class _CoctailScreenState extends State<CoctailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cocktails'),
+        title: Text('name'.tr()),
+        leading: IconButton(
+          onPressed: _toggleLanguage,
+          icon: Icon(Icons.language),
+        ),
         actions: [
           IconButton(
-            tooltip: _onlyFavorites ? 'Pokaż wszystkie' : 'Tylko ulubione',
+            tooltip: _onlyFavorites ? 'showAll'.tr() : 'favoriteOnly'.tr(),
             icon: Icon(
               _onlyFavorites ? Icons.favorite : Icons.favorite_border,
               color: _onlyFavorites ? Colors.red : null,
@@ -103,21 +117,27 @@ class _CoctailScreenState extends State<CoctailScreen> {
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.sort_by_alpha),
-            tooltip: 'Sortuj',
+            tooltip: 'sort'.tr(),
             initialValue: cocktailProvider.sort,
             onSelected: (String value) {
               cocktailProvider.setSortBy(value);
             },
             itemBuilder: (BuildContext context) => [
-              const PopupMenuItem(value: '+name', child: Text('Nazwa (A-Z)')),
-              const PopupMenuItem(value: '-name', child: Text('Nazwa (Z-A)')),
-              const PopupMenuItem(
-                value: '+category',
-                child: Text('Kategoria (A-Z)'),
+              PopupMenuItem(
+                value: '+name',
+                child: Text('${'drinkName'.tr()} (A-Z)'),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
+                value: '-name',
+                child: Text('${'drinkName'.tr()} (Z-A)'),
+              ),
+              PopupMenuItem(
+                value: '+category',
+                child: Text('${'category'.tr()} (A-Z)'),
+              ),
+              PopupMenuItem(
                 value: '-category',
-                child: Text('Kategoria (Z-A)'),
+                child: Text('${'category'.tr()} (Z-A)'),
               ),
             ],
           ),
@@ -142,7 +162,7 @@ class _CoctailScreenState extends State<CoctailScreen> {
                   constraints: const BoxConstraints(maxWidth: 600),
                   child: SearchBar(
                     controller: _searchController,
-                    hintText: 'Search cocktails',
+                    hintText: 'search'.tr(),
                     leading: const Icon(Icons.search),
                     trailing: [
                       if (cocktailProvider.query?.isNotEmpty == true)
@@ -162,20 +182,20 @@ class _CoctailScreenState extends State<CoctailScreen> {
               child: SizedBox(
                 width: double.infinity,
                 child: SegmentedButton<bool?>(
-                  segments: const [
+                  segments: [
                     ButtonSegment<bool?>(
                       value: null,
-                      label: Text('Wszystkie'),
+                      label: Text('all'.tr()),
                       icon: Icon(Icons.list),
                     ),
                     ButtonSegment<bool?>(
                       value: true,
-                      label: Text('Z alkoholem'),
+                      label: Text('alcoholic'.tr()),
                       icon: Icon(Icons.wine_bar),
                     ),
                     ButtonSegment<bool?>(
                       value: false,
-                      label: Text('Bez alkoholu'),
+                      label: Text('noAlco'.tr()),
                       icon: Icon(Icons.no_drinks),
                     ),
                   ],
@@ -186,16 +206,17 @@ class _CoctailScreenState extends State<CoctailScreen> {
                 ),
               ),
             ),
-            ChipsChoice<String?>.single(
-              value: cocktailProvider.category,
-              onChanged: (value) => cocktailProvider.setCategory(value!),
-              choiceItems: C2Choice.listFrom<String, String>(
-                source: cocktailProvider.categories,
-                value: (index, item) => item,
-                label: (index, item) => item,
+            if (cocktailProvider.categories.isNotEmpty) // jakby ktoś pytał czemu tak, to przy odpalaniu aplikacji ta lista jest chwilowo pusta i rzuca Null Exception
+              ChipsChoice<String?>.single(
+                value: cocktailProvider.category,
+                onChanged: (value) => cocktailProvider.setCategory(value!),
+                choiceItems: C2Choice.listFrom<String, String>(
+                  source: cocktailProvider.categories,
+                  value: (index, item) => item,
+                  label: (index, item) => item,
+                ),
+                wrapped: false,
               ),
-              wrapped: false,
-            ),
             Expanded(
               child: _onlyFavorites
                   ? _buildFavoritesList(cocktailProvider)
@@ -214,12 +235,12 @@ class _CoctailScreenState extends State<CoctailScreen> {
     if (cocktailProvider.error != null) {
       return _Message(
         icon: Icons.error,
-        text: 'Wystąpił błąd: ${cocktailProvider.error}',
+        text: '${'error'.tr()}  ${cocktailProvider.error}',
         onRetry: () => cocktailProvider.fetchCocktails(),
       );
     }
     if (cocktailProvider.list.isEmpty) {
-      return const _Message(icon: Icons.search_off, text: 'Brak wyników');
+      return _Message(icon: Icons.search_off, text: 'noResults'.tr());
     }
 
     return _buildGrid(cocktailProvider.list);
@@ -244,10 +265,7 @@ class _CoctailScreenState extends State<CoctailScreen> {
           return const Center(child: CircularProgressIndicator());
         }
         if (items.isEmpty) {
-          return const _Message(
-            icon: Icons.favorite_border,
-            text: 'Brak ulubionych',
-          );
+          return _Message(icon: Icons.favorite_border, text: 'noFavorite'.tr());
         }
         return _buildGrid(items);
       },
@@ -349,7 +367,7 @@ class _CocktailCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        cocktail.alcoholic ? 'Alcoholic' : 'Non-alcoholic',
+                        cocktail.alcoholic ? 'alcoholic'.tr() : 'noAlco'.tr(),
                         style: textTheme.labelSmall?.copyWith(
                           color: Colors.white,
                         ),
@@ -408,7 +426,7 @@ class _Message extends StatelessWidget {
             FilledButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
-              label: const Text('Spróbuj ponownie'),
+              label: Text('tryAgain'.tr()),
             ),
           ],
         ],

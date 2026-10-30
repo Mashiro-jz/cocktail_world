@@ -1,0 +1,18 @@
+{
+    "name" : "Lista imprezowych koktajli",
+    "search" : "Szukaj koktajli",
+    "all" : "Wszystkie",
+    "alcoholic" : "Alkoholowe",
+    "noAlco" : "Bezalkoholowe",
+    "favoriteOnly" : "Tylko ulubione",
+    "showAll" : "Pokaż wszystkie",
+    "sort" : "Sortuj",
+    "drinkName" : "Nazwa",
+    "category" : "Kategoria",
+    "error" : "Wystąpił błąd: ",
+    "noResults" : "Brak wyników",
+    "noFavorite" : "Brak ulubionych",
+    "tryAgain" : "Spróbuj ponownie",
+    "deleteFavorite" : "Usuń z ulubionych",
+    "addFavorite" : "Dodaj do ulubionych"
+}

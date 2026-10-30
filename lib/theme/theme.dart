@@ -12,10 +12,8 @@ ThemeData lightMode = ThemeData(
 
 ThemeData darkMode = ThemeData(
   useMaterial3: true,
-  brightness: Brightness.dark,
   colorScheme: ColorScheme.fromSeed(
-    seedColor: const Color.fromARGB(255, 151, 67, 67),
-    primary: const Color.fromARGB(255, 101, 12, 160),
+    seedColor: const Color(0xFF9C2A3A),
     brightness: Brightness.dark,
   ),
 );
