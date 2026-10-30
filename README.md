@@ -46,13 +46,15 @@ Cocktail World to aplikacja we Flutterze, w której można przeglądać koktajle
 - `translate` - pliki tłumaczeń (`pl.json`, `en.json`)
 
 ## Screenshoty
-![Lista koktajli](flutter_01.png)
-![Lista koktajli](flutter_02.png)
-![Lista koktajli](flutter_03.png)
-![Lista koktajli](flutter_04.png)
-![Lista koktajli](flutter_05.png)
-![Lista koktajli](flutter_06.png)
-![Lista koktajli](flutter_07.png)
+<img width="1303" height="902" alt="flutter_07" src="https://github.com/user-attachments/assets/cf30cf13-8fb9-4e86-bc02-d045b168fea0" />
+<img width="1303" height="902" alt="flutter_06" src="https://github.com/user-attachments/assets/33f7f454-f853-4066-bdc9-5f8a27ef939a" />
+<img width="1303" height="902" alt="flutter_05" src="https://github.com/user-attachments/assets/40598a33-46b5-4e25-ba17-299baa1e5db9" />
+<img width="1303" height="902" alt="flutter_04" src="https://github.com/user-attachments/assets/6c3a88ca-3d9b-4402-86cc-7da0ffde710c" />
+<img width="1303" height="902" alt="flutter_03" src="https://github.com/user-attachments/assets/74fee70c-887d-48a1-844c-4b2b409657fa" />
+<img width="1303" height="902" alt="flutter_02" src="https://github.com/user-attachments/assets/d38107ab-941a-4f99-9e6d-2eddd8428a7e" />
+<img width="1303" height="902" alt="flutter_01" src="https://github.com/user-attachments/assets/772f9220-41f5-4bff-a98a-f3c3ea219874" />
+
+
 
 ## Uwagi
 
