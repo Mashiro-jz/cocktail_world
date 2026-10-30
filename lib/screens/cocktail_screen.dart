@@ -1,7 +1,10 @@
 import 'package:coctail_world/models/cocktail.dart';
 import 'package:coctail_world/providers/cocktail_provider.dart';
-import 'package:coctail_world/screens/cocktail_details_screen.dart';
+import 'package:coctail_world/providers/favorites_provider.dart';
 import 'package:coctail_world/providers/theme_provider.dart';
+import 'package:coctail_world/screens/cocktail_details_screen.dart';
+import 'package:coctail_world/services/cocktail_repository.dart';
+import 'package:coctail_world/widgets/favorite_button.dart';
 import 'package:flutter/material.dart';
 import 'package:chips_choice/chips_choice.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +19,12 @@ class CoctailScreen extends StatefulWidget {
 class _CoctailScreenState extends State<CoctailScreen> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final CocktailRepository _repository = CocktailRepository();
+
+  // Cache koktajli ulubionych (id -> koktajl), żeby nie pobierać ich co chwilę
+  final Map<String, Cocktail> _favoritesCache = {};
+  bool _onlyFavorites = false;
+  bool _loadingFavorites = false;
 
   @override
   void dispose() {
@@ -37,10 +46,49 @@ class _CoctailScreenState extends State<CoctailScreen> {
   }
 
   void _onScroll() {
+    // W trybie ulubionych nie dociągamy kolejnych stron z API
+    if (_onlyFavorites) return;
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       context.read<CocktailProvider>().fetchCocktails();
     }
+  }
+
+  void _toggleFavoritesOnly() {
+    setState(() => _onlyFavorites = !_onlyFavorites);
+    if (_onlyFavorites) _loadMissingFavorites();
+  }
+
+  /// Ulubione mogą nie być jeszcze na liście (paginacja), więc brakujące
+  /// doładowujemy po id.
+  Future<void> _loadMissingFavorites() async {
+    final ids = context.read<FavoritesProvider>().favoriteIds;
+
+    // Najpierw wykorzystaj to, co już jest załadowane na głównej liście
+    for (final c in context.read<CocktailProvider>().list) {
+      final id = c.id.toString();
+      if (ids.contains(id)) _favoritesCache[id] = c;
+    }
+
+    final missing = ids
+        .where((id) => !_favoritesCache.containsKey(id))
+        .toList();
+    if (missing.isEmpty) return;
+
+    setState(() => _loadingFavorites = true);
+    final results = await Future.wait(
+      missing.map((id) async {
+        try {
+          return await _repository.getCocktailDetails(id);
+        } catch (_) {
+          return null;
+        }
+      }),
+    );
+    for (final c in results) {
+      if (c != null) _favoritesCache[c.id.toString()] = c;
+    }
+    if (mounted) setState(() => _loadingFavorites = false);
   }
 
   @override
@@ -51,6 +99,39 @@ class _CoctailScreenState extends State<CoctailScreen> {
       appBar: AppBar(
         title: const Text('Cocktails'),
         actions: [
+          IconButton(
+            tooltip: _onlyFavorites ? 'Pokaż wszystkie' : 'Tylko ulubione',
+            icon: Icon(
+              _onlyFavorites ? Icons.favorite : Icons.favorite_border,
+              color: _onlyFavorites ? Colors.red : null,
+            ),
+            onPressed: _toggleFavoritesOnly,
+          ),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.sort_by_alpha),
+            tooltip: 'Sortuj',
+            // initialValue podświetli opcję, która jest aktualnie wybrana w Providerze
+            initialValue:
+                cocktailProvider.sort, // upewnij się, że tak nazwałeś getter!
+            // onSelected odpali się, gdy użytkownik kliknie jedną z opcji
+            onSelected: (String value) {
+              cocktailProvider.setSortBy(value);
+            },
+
+            // itemBuilder buduje listę dostępnych opcji w menu
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem(value: '+name', child: Text('Nazwa (A-Z)')),
+              const PopupMenuItem(value: '-name', child: Text('Nazwa (Z-A)')),
+              const PopupMenuItem(
+                value: '+category',
+                child: Text('Kategoria (A-Z)'),
+              ),
+              const PopupMenuItem(
+                value: '-category',
+                child: Text('Kategoria (Z-A)'),
+              ),
+            ],
+          ),
           IconButton(
             icon: Theme.of(context).brightness == Brightness.dark
                 ? const Icon(Icons.light_mode)
@@ -130,7 +211,11 @@ class _CoctailScreenState extends State<CoctailScreen> {
               ),
               wrapped: false,
             ),
-            Expanded(child: _buildCocktailList(cocktailProvider)),
+            Expanded(
+              child: _onlyFavorites
+                  ? _buildFavoritesList(cocktailProvider)
+                  : _buildCocktailList(cocktailProvider),
+            ),
           ],
         ),
       ),
@@ -152,6 +237,39 @@ class _CoctailScreenState extends State<CoctailScreen> {
       return const _Message(icon: Icons.search_off, text: 'Brak wyników');
     }
 
+    return _buildGrid(cocktailProvider.list);
+  }
+
+  Widget _buildFavoritesList(CocktailProvider cocktailProvider) {
+    return Consumer<FavoritesProvider>(
+      builder: (context, favorites, _) {
+        final query = _searchController.text.trim().toLowerCase();
+        final items = favorites.favoriteIds
+            .map((id) => _favoritesCache[id])
+            .whereType<Cocktail>()
+            .where((c) => query.isEmpty || c.name.toLowerCase().contains(query))
+            .where(
+              (c) =>
+                  cocktailProvider.alcoholicFilter == null ||
+                  c.alcoholic == cocktailProvider.alcoholicFilter,
+            )
+            .toList();
+
+        if (_loadingFavorites && items.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (items.isEmpty) {
+          return const _Message(
+            icon: Icons.favorite_border,
+            text: 'Brak ulubionych',
+          );
+        }
+        return _buildGrid(items);
+      },
+    );
+  }
+
+  Widget _buildGrid(List<Cocktail> items) {
     return GridView.builder(
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -162,10 +280,10 @@ class _CoctailScreenState extends State<CoctailScreen> {
         crossAxisSpacing: 12,
         childAspectRatio: 0.8,
       ),
-      itemCount: cocktailProvider.list.length,
+      itemCount: items.length,
       controller: _scrollController,
       itemBuilder: (context, index) {
-        final cocktail = cocktailProvider.list[index];
+        final cocktail = items[index];
         return _CocktailCard(
           cocktail: cocktail,
           onTap: () => Navigator.push(
@@ -226,6 +344,14 @@ class _CocktailCard extends StatelessWidget {
                           errorBuilder: (context, error, stackTrace) =>
                               placeholder,
                         ),
+                  Positioned(
+                    top: 4,
+                    left: 4,
+                    child: FavoriteButton(
+                      id: cocktail.id.toString(),
+                      overlay: true,
+                    ),
+                  ),
                   Positioned(
                     top: 8,
                     right: 8,

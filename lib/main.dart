@@ -1,4 +1,5 @@
 import 'package:coctail_world/providers/cocktail_provider.dart';
+import 'package:coctail_world/providers/favorites_provider.dart';
 import 'package:coctail_world/screens/cocktail_screen.dart';
 import 'package:coctail_world/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ void main() {
         ChangeNotifierProvider(
           create: (context) => CocktailProvider()..fetchCocktails(),
         ),
+        ChangeNotifierProvider(create: (context) => FavoritesProvider()),
       ],
       child: const MyApp(),
     ),

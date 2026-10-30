@@ -2,6 +2,7 @@ import 'package:coctail_world/models/cocktail.dart';
 import 'package:coctail_world/models/ingredient.dart';
 import 'package:coctail_world/providers/theme_provider.dart';
 import 'package:coctail_world/services/cocktail_repository.dart';
+import 'package:coctail_world/widgets/favorite_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -39,6 +40,7 @@ class _CocktailDetailsScreenState extends State<CocktailDetailsScreen> {
       appBar: AppBar(
         title: const Text('Cocktail Details'),
         actions: [
+          FavoriteButton(id: widget.coctailId),
           IconButton(
             icon: Theme.of(context).brightness == Brightness.dark
                 ? const Icon(Icons.light_mode)

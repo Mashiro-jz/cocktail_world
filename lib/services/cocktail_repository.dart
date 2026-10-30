@@ -24,6 +24,7 @@ class CocktailRepository {
     String? category,
     bool? alcoholic,
     String? search,
+    String? sort,
   ) async {
     List<Cocktail> cocktails = [];
 
@@ -35,6 +36,7 @@ class CocktailRepository {
     if (category != null) queryParams['category'] = category;
     if (alcoholic != null) queryParams['alcoholic'] = alcoholic.toString();
     if (search != null && search.isNotEmpty) queryParams['name'] = search;
+    if (sort != null) queryParams['sort'] = sort;
 
     var url = Uri.https(
       'cocktails.solvro.pl',
